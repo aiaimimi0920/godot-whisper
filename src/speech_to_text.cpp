@@ -528,7 +528,9 @@ void SpeechToText::run() {
 		}
 		float time_started = Time::get_singleton()->get_ticks_msec();
 		{
-			whisper_params.duration_ms = pcmf32.size() / WHISPER_SAMPLE_RATE * 1000.0f;
+			whisper_params.duration_ms = pcmf32.size() * 1000.0f / WHISPER_SAMPLE_RATE;
+			UtilityFunctions::print("process size: ", String::num(pcmf32.size()));
+			UtilityFunctions::print("whisper_params.duration_ms: ", String::num(whisper_params.duration_ms));
 			UtilityFunctions::print("process: 3333333333333333");
 			int ret = whisper_full(speech_to_text_obj->context_instance, speech_to_text_obj->full_params, pcmf32.data(), pcmf32.size());
 			UtilityFunctions::print("process: 444444444444444");
