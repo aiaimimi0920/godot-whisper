@@ -96,6 +96,9 @@ bool vad_simple(std::vector<float> &pcmf32, int sample_rate, int last_ms, float 
 	if (verbose) {
 		fprintf(stderr, "%s: energy_all: %f, energy_last: %f, vad_thold: %f, freq_thold: %f\n", __func__, energy_all, energy_last, vad_thold, freq_thold);
 	}
+
+	UtilityFunctions::print("energy_all: ", String::num(energy_all));
+	UtilityFunctions::print("energy_last: ", String::num(energy_last));
 	if ((energy_all < 0.0001f && energy_last < 0.0001f) == false || energy_last > vad_thold * energy_all) {
 		return false;
 	}
@@ -394,10 +397,13 @@ void SpeechToText::add_audio_buffer(PackedVector2Array buffer) {
 	const int vad_last_ms = 0;
 	const float vad_thold = params.vad_thold;
 	const float freq_thold = params.freq_thold;
+	UtilityFunctions::print("begin size: ", String::num(s_queued_pcmf32.size()));
 	bool is_empty_array = vad_simple(data, WHISPER_SAMPLE_RATE, vad_last_ms, vad_thold, freq_thold, false);
+
 	if (is_empty_array == false) {
 		s_queued_pcmf32.insert(s_queued_pcmf32.end(), data.begin(), data.end());
 	}
+	UtilityFunctions::print("end size: ", String::num(s_queued_pcmf32.size()));
 	memfree(buffer_float);
 	memfree(resampled_float);
 	s_mutex.unlock();
@@ -568,12 +574,12 @@ void SpeechToText::run() {
 					auto text = whisper_full_get_token_text(speech_to_text_obj->context_instance, i, j);
 					// Idea from https://github.com/yum-food/TaSTT/blob/dbb2f72792e2af3ff220313f84bf76a9a1ddbeb4/Scripts/transcribe_v2.py#L457C17-L462C25
 					if (token.p > 0.6 && token.plog < -0.5) {
-						WARN_PRINT("Skipping token " + String::num(token.p) + " " + String::num(token.plog) + " " + text);
-						continue;
+						// WARN_PRINT("Skipping token " + String::num(token.p) + " " + String::num(token.plog) + " " + text);
+						// continue;
 					}
 					if (token.plog < -1.0) {
 						//WARN_PRINT("Skipping token low plog " + String::num(token.p) + " " + String::num(token.plog) + " " + text);
-						continue;
+						// continue;
 					}
 					if (find_delete_target_t == false) {
 						String cur_text = String(text);
