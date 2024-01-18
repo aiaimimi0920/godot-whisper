@@ -631,7 +631,7 @@ void SpeechToText::run() {
 			 * speech end is detected.
 			 */
 			UtilityFunctions::print("process: 9999999999999999");
-			if (pcmf32.size() > n_samples_iter_threshold * 0.75 || speech_has_end) {
+			if (pcmf32.size() > n_samples_iter_threshold * 0.66 || speech_has_end) {
 				const auto t_now = Time::get_singleton()->get_ticks_msec();
 				const auto t_diff = t_now - speech_to_text_obj->t_last_iter;
 				speech_to_text_obj->t_last_iter = t_now;
