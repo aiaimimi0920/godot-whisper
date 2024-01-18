@@ -493,13 +493,13 @@ void SpeechToText::run() {
 			UtilityFunctions::print("begin process: 1111111111");
 			speech_to_text_obj->s_mutex.lock();
 			need_close_segment = false;
-			if (speech_to_text_obj->s_queued_pcmf32.size() < n_samples_trigger) {
+			if (speech_to_text_obj->s_queued_pcmf32.size() < WHISPER_SAMPLE_RATE) {
 				empty_iter_count += 1;
-				if (empty_iter_count >= 10 && pcmf32.size() > 0) {
+				if (empty_iter_count >= 20 && pcmf32.size() > 0) {
 					need_close_segment = true;
 					empty_iter_count = 0;
 				} else {
-					empty_iter_count = empty_iter_count % 10;
+					empty_iter_count = empty_iter_count % 20;
 					speech_to_text_obj->s_mutex.unlock();
 					OS::get_singleton()->delay_msec(50);
 					continue;
