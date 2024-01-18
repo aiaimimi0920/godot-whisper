@@ -490,6 +490,7 @@ void SpeechToText::run() {
 	/* Processing loop */
 	while (speech_to_text_obj->is_running) {
 		{
+			UtilityFunctions::print("begin process: 1111111111");
 			speech_to_text_obj->s_mutex.lock();
 			need_close_segment = false;
 			if (speech_to_text_obj->s_queued_pcmf32.size() < n_samples_trigger) {
@@ -505,6 +506,7 @@ void SpeechToText::run() {
 				}
 			}
 			speech_to_text_obj->s_mutex.unlock();
+			UtilityFunctions::print("process: 222222222222");
 		}
 		{
 			speech_to_text_obj->s_mutex.lock();
@@ -527,7 +529,9 @@ void SpeechToText::run() {
 		float time_started = Time::get_singleton()->get_ticks_msec();
 		{
 			whisper_params.duration_ms = pcmf32.size() / WHISPER_SAMPLE_RATE * 1000.0f;
+			UtilityFunctions::print("process: 3333333333333333");
 			int ret = whisper_full(speech_to_text_obj->context_instance, speech_to_text_obj->full_params, pcmf32.data(), pcmf32.size());
+			UtilityFunctions::print("process: 444444444444444");
 			if (ret != 0) {
 				ERR_PRINT("Failed to process audio, returned " + rtos(ret));
 				continue;
@@ -541,6 +545,7 @@ void SpeechToText::run() {
 			 */
 			bool speech_has_end = false;
 			/* Need enough accumulated audio to do VAD. */
+			UtilityFunctions::print("process: 555555555555555555");
 			if ((int)pcmf32.size() >= n_samples_vad_window) {
 				std::vector<float> pcmf32_window(pcmf32.end() - n_samples_vad_window, pcmf32.end());
 				speech_has_end = vad_simple(pcmf32_window, WHISPER_SAMPLE_RATE, vad_last_ms,
@@ -555,7 +560,7 @@ void SpeechToText::run() {
 				}
 				speech_has_end = true;
 			}
-
+			UtilityFunctions::print("process: 666666666666666");
 			const int n_segments = whisper_full_n_segments(speech_to_text_obj->context_instance);
 			int64_t delete_target_t = 0;
 			bool find_delete_target_t = false;
@@ -567,6 +572,7 @@ void SpeechToText::run() {
 				auto cur_last_token = whisper_full_get_token_data(speech_to_text_obj->context_instance, n_segments - 1, cur_n_tokens - 1);
 				half_t = cur_last_token.t1 * 1.0 / 2.0;
 			}
+			UtilityFunctions::print("process: 777777777777777");
 			for (int i = 0; i < n_segments; ++i) {
 				const int n_tokens = whisper_full_n_tokens(speech_to_text_obj->context_instance, i);
 				for (int j = 0; j < n_tokens; j++) {
@@ -612,7 +618,7 @@ void SpeechToText::run() {
 					}
 				}
 			}
-
+			UtilityFunctions::print("process: 88888888888888888");
 			if (delete_target_t != 0 && find_delete_target_t == false) {
 				msg.text.insert(target_index, "{SPLIT}");
 				find_delete_target_t = true;
@@ -622,7 +628,7 @@ void SpeechToText::run() {
 			 * Clear audio buffer when the size exceeds iteration threshold or
 			 * speech end is detected.
 			 */
-
+			UtilityFunctions::print("process: 9999999999999999");
 			if (pcmf32.size() > n_samples_iter_threshold * 0.75 || speech_has_end) {
 				const auto t_now = Time::get_singleton()->get_ticks_msec();
 				const auto t_diff = t_now - speech_to_text_obj->t_last_iter;
@@ -648,6 +654,7 @@ void SpeechToText::run() {
 			} else {
 				msg.is_partial = true;
 			}
+			UtilityFunctions::print("process: aaaaaaaaaaaaaaaa");
 			float time_end = Time::get_singleton()->get_ticks_msec() - time_started;
 			speech_to_text_obj->s_mutex.lock();
 			s_transcribed_msgs.insert(s_transcribed_msgs.end(), std::move(msg));
@@ -663,8 +670,11 @@ void SpeechToText::run() {
 				cur_transcribed_msg["text"] = cur_text.utf8(transcribed[i].text.c_str());
 				ret.push_back(cur_transcribed_msg);
 			};
+			UtilityFunctions::print("process: bbbbbbbbbbbbb");
 			speech_to_text_obj->call_deferred("emit_signal", "update_transcribed_msgs", time_end, ret);
+			UtilityFunctions::print("process: ccccccccccccc");
 			speech_to_text_obj->s_mutex.unlock();
+			UtilityFunctions::print("process: ddddddddddddd");
 		}
 	}
 }
