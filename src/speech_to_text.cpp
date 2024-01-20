@@ -565,7 +565,8 @@ void SpeechToText::run() {
 				for (int j = 0; j < n_tokens; j++) {
 					auto token = whisper_full_get_token_data(speech_to_text_obj->context_instance, i, j);
 					auto text = whisper_full_get_token_text(speech_to_text_obj->context_instance, i, j);
-					UtilityFunctions::print("text", text);
+					UtilityFunctions::print("i: ", i, " j: ", j);
+					print_hex(text);
 					// Idea from https://github.com/yum-food/TaSTT/blob/dbb2f72792e2af3ff220313f84bf76a9a1ddbeb4/Scripts/transcribe_v2.py#L457C17-L462C25
 					if (token.p > 0.6 && token.plog < -0.5) {
 						WARN_PRINT("Skipping token " + String::num(token.p) + " " + String::num(token.plog) + " " + text);
@@ -606,7 +607,8 @@ void SpeechToText::run() {
 					}
 				}
 			}
-			printf("msg.text: %s", msg.text.c_str());
+			UtilityFunctions::print("msg.text");
+			print_hex(msg.text);
 			UtilityFunctions::print("utf8-msg.text", String::utf8(msg.text.c_str()));
 
 			if (delete_target_t != 0 && find_delete_target_t == false) {
@@ -661,6 +663,15 @@ void SpeechToText::run() {
 			speech_to_text_obj->s_mutex.unlock();
 		}
 	}
+}
+
+void print_hex(const std::string &p_string) {
+	for (int i = 0; i < p_string.size(); i++) {
+		if (i > 0)
+			printf(" ");
+		printf("%02X", p_string[i]);
+	}
+	printf("\n");
 }
 
 void SpeechToText::_bind_methods() {
