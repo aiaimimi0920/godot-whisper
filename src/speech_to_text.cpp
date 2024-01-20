@@ -579,11 +579,11 @@ void SpeechToText::run() {
 					// Idea from https://github.com/yum-food/TaSTT/blob/dbb2f72792e2af3ff220313f84bf76a9a1ddbeb4/Scripts/transcribe_v2.py#L457C17-L462C25
 					if (token.p > 0.6 && token.plog < -0.5) {
 						WARN_PRINT("Skipping token " + String::num(token.p) + " " + String::num(token.plog) + " " + text);
-						continue;
+						// continue;
 					}
 					if (token.plog < -1.0) {
 						WARN_PRINT("Skipping token low plog " + String::num(token.p) + " " + String::num(token.plog) + " " + text);
-						continue;
+						// continue;
 					}
 					if (find_delete_target_t == false) {
 						String cur_text = String(text);
