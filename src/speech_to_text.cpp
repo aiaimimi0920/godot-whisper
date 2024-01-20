@@ -607,7 +607,7 @@ void SpeechToText::run() {
 					}
 				}
 			}
-			UtilityFunctions::print("msg.text", msg.text);
+			printf("msg.text: %s", msg.text.c_str());
 			UtilityFunctions::print("utf8-msg.text", String::utf8(msg.text.c_str()));
 
 			if (delete_target_t != 0 && find_delete_target_t == false) {
