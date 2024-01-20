@@ -565,7 +565,6 @@ void SpeechToText::run() {
 				for (int j = 0; j < n_tokens; j++) {
 					auto token = whisper_full_get_token_data(speech_to_text_obj->context_instance, i, j);
 					auto text = whisper_full_get_token_text(speech_to_text_obj->context_instance, i, j);
-					UtilityFunctions::print("token", token);
 					UtilityFunctions::print("text", text);
 					// Idea from https://github.com/yum-food/TaSTT/blob/dbb2f72792e2af3ff220313f84bf76a9a1ddbeb4/Scripts/transcribe_v2.py#L457C17-L462C25
 					if (token.p > 0.6 && token.plog < -0.5) {
