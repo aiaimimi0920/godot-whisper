@@ -3,6 +3,8 @@
 
 #include "resource_whisper.h"
 
+#include <libsamplerate/src/samplerate.h>
+#include <whisper.cpp/whisper.h>
 #include <godot_cpp/classes/mutex.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/os.hpp>
@@ -11,9 +13,7 @@
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/callable.hpp>
-
-#include <libsamplerate/src/samplerate.h>
-#include <whisper.cpp/whisper.h>
+#include <godot_cpp/variant/callable_method_pointer.hpp>
 
 #include <atomic>
 #include <string>
@@ -183,7 +183,7 @@ public:
 	std::vector<float> s_queued_pcmf32;
 	std::vector<transcribed_msg> s_transcribed_msgs;
 	Mutex s_mutex; // for accessing shared variables from both main thread and worker thread
-	Thread worker;
+	Thread *worker;
 	void run();
 
 	_FORCE_INLINE_ void set_entropy_threshold(float entropy_threshold) { params.entropy_threshold = entropy_threshold; }
