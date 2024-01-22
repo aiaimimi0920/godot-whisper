@@ -99,10 +99,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 	add_definitions(-DNOMINMAX)
 else()  # GCC/Clang
-	set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -g")
-
 	if(CMAKE_BUILD_TYPE MATCHES Debug)
-		set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -fno-omit-frame-pointer -O0")
+		set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -fno-omit-frame-pointer -O0 -g")
 	else()
 		set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -O3")
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -110,7 +108,7 @@ endif()
 
 # Disable exception handling. Godot doesn't use exceptions anywhere, and this
 # saves around 20% of binary size and very significant build time (GH-80513).
-option(GODOT_DISABLE_EXCEPTIONS OFF "Force disabling exception handling code")
+option(GODOT_DISABLE_EXCEPTIONS ON "Force disabling exception handling code")
 if (GODOT_DISABLE_EXCEPTIONS)
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 		set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -D_HAS_EXCEPTIONS=0")
@@ -134,6 +132,7 @@ endif()
 execute_process(COMMAND "${Python3_EXECUTABLE}" "-c" "import binding_generator; binding_generator.print_file_list(\"${GODOT_GDEXTENSION_API_FILE}\", \"${CMAKE_CURRENT_BINARY_DIR}\", headers=True, sources=True)"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	OUTPUT_VARIABLE GENERATED_FILES_LIST
+	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 add_custom_command(OUTPUT ${GENERATED_FILES_LIST}

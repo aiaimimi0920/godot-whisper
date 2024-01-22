@@ -177,9 +177,24 @@ def options(opts, env):
 
     opts.Add(
         BoolVariable(
-            "disable_exceptions",
-            "Force disabling exception handling code",
-            default=env.get("disable_exceptions", False),
+            key="use_hot_reload",
+            help="Enable the extra accounting required to support hot reload.",
+            default=env.get("use_hot_reload", None),
+        )
+    )
+
+    opts.Add(
+        BoolVariable(
+            "disable_exceptions", "Force disabling exception handling code", default=env.get("disable_exceptions", True)
+        )
+    )
+
+    opts.Add(
+        EnumVariable(
+            key="symbols_visibility",
+            help="Symbols visibility on GNU platforms. Use 'auto' to apply the default value.",
+            default=env.get("symbols_visibility", "hidden"),
+            allowed_values=["auto", "visible", "hidden"],
         )
     )
 
@@ -239,6 +254,11 @@ def generate(env):
 
     print("Building for architecture " + env["arch"] + " on platform " + env["platform"])
 
+    if env.get("use_hot_reload") is None:
+        env["use_hot_reload"] = env["target"] != "template_release"
+    if env["use_hot_reload"]:
+        env.Append(CPPDEFINES=["HOT_RELOAD_ENABLED"])
+
     tool = Tool(env["platform"], toolpath=["tools"])
 
     if tool is None or not tool.exists(env):
@@ -257,6 +277,14 @@ def generate(env):
             env.Append(CXXFLAGS=["-fno-exceptions"])
     elif env.get("is_msvc", False):
         env.Append(CXXFLAGS=["/EHsc"])
+
+    if not env.get("is_msvc", False):
+        if env["symbols_visibility"] == "visible":
+            env.Append(CCFLAGS=["-fvisibility=default"])
+            env.Append(LINKFLAGS=["-fvisibility=default"])
+        elif env["symbols_visibility"] == "hidden":
+            env.Append(CCFLAGS=["-fvisibility=hidden"])
+            env.Append(LINKFLAGS=["-fvisibility=hidden"])
 
     # Require C++17
     if env.get("is_msvc", False):
